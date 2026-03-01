@@ -212,6 +212,9 @@ export class SqliteTool {
     }
   }
 
+  // TODO Удобнее работать с именнованными параметрами
+  // https://bun.com/docs/runtime/sqlite#parameters
+
   /**
    * Выполняет параметризованный SQL-запрос.
    *
