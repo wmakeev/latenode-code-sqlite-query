@@ -1,0 +1,5 @@
+{
+  "editor.formatOnSave": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+	"bun.runtime": "/home/mvv/.bun/bin/bun",
+}

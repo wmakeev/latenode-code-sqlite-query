@@ -1,0 +1,12 @@
+{
+	"extends": [
+		"@tsconfig/bun/tsconfig.json",
+		"@tsconfig/strictest/tsconfig.json"
+	],
+	"compilerOptions": {
+		"noEmit": true,
+		"exactOptionalPropertyTypes": false,
+		"allowJs": true
+	},
+	"include": ["src/**/*", "test/**/*", "resources/_sample.js"]
+}
