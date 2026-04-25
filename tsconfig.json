@@ -4,6 +4,7 @@
 		"@tsconfig/strictest/tsconfig.json"
 	],
 	"compilerOptions": {
+    "types": ["bun"],
 		"noEmit": true,
 		"exactOptionalPropertyTypes": false,
 		"allowJs": true
