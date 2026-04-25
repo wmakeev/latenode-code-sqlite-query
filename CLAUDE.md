@@ -16,7 +16,8 @@ bun test test/infer.test.js               # single file
 bun test test/infer.test.js -t 'string'   # one test by name pattern
 bunx tsc --noEmit                         # type-check (JSDoc + .d.ts, strictest config)
 bun run lint                              # eslint
-bun run format                            # prettier --check
+bun run format                            # prettier --check (CI runs this)
+bun run format:fix                        # prettier --write (auto-fix)
 ```
 
 Publishing uses a separate npm config: `npx --userconfig ~/.npmrc_latenode np --no-tests` (see `publish.md`).
@@ -68,7 +69,7 @@ The `toJs` field on every converter is **defined but not currently invoked** whe
 ## Code conventions
 
 - **All project files MUST be written in English.** This includes source code (comments, JSDoc, log messages, identifiers, error messages), tests (descriptions, comments), and documentation (README, CHANGELOG, doc/). Do not write Russian (or any other non-English) text in committed files.
-- Prettier config is inline in `package.json`: no semicolons, single quotes, no trailing commas, `arrowParens: avoid`.
+- Prettier config is inline in `package.json`: no semicolons, single quotes, no trailing commas, `arrowParens: avoid`. Before committing run `bun run format:fix` (or at minimum `bun run format`) — CI runs `prettier --check` and will fail on unformatted files.
 - ESLint flat config in `eslint.config.js` — `@eslint/js` recommended + `eslint-plugin-jsdoc`.
 - Logs go through `this._logger` with `[SQL]` / `[INFO]` / `[ERROR]` prefixes. Never call `console.*` directly inside `SqliteTool.js`. Tests use `verbose: 'silent'`.
 

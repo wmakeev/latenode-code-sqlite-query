@@ -22,6 +22,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --check .",
+    "format:fix": "prettier --write .",
     "publish:public": "npx --userconfig ~/.npmrc_latenode np --no-tests"
   },
   "engines": {
