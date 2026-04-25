@@ -46,19 +46,19 @@ console.log(tool.getSchema())
 
 ## JS → SQLite type mapping (short)
 
-| JS                            | SQLite                                |
-| ----------------------------- | ------------------------------------- |
-| `string`                      | `TEXT`                                |
-| `boolean`                     | `INTEGER` (0/1)                       |
-| `Uint8Array`                  | `BLOB`                                |
-| `number` (integer, finite)    | `INTEGER`                             |
-| `number` (fractional, finite) | `REAL`                                |
-| `bigint`                      | `INTEGER` (see `safeIntegers`)        |
-| `Date`                        | `TEXT` (ISO 8601)                     |
-| plain `{}`/`[]`               | `TEXT` (JSON)                         |
-| `Map`/`Set`/`RegExp`/class    | `TEXT NULL` (stored as `null`)        |
-| `null`/`undefined`            | column → nullable                     |
-| `NaN`/`Infinity`              | `TEXT`                                |
+| JS                            | SQLite                         |
+| ----------------------------- | ------------------------------ |
+| `string`                      | `TEXT`                         |
+| `boolean`                     | `INTEGER` (0/1)                |
+| `Uint8Array`                  | `BLOB`                         |
+| `number` (integer, finite)    | `INTEGER`                      |
+| `number` (fractional, finite) | `REAL`                         |
+| `bigint`                      | `INTEGER` (see `safeIntegers`) |
+| `Date`                        | `TEXT` (ISO 8601)              |
+| plain `{}`/`[]`               | `TEXT` (JSON)                  |
+| `Map`/`Set`/`RegExp`/class    | `TEXT NULL` (stored as `null`) |
+| `null`/`undefined`            | column → nullable              |
+| `NaN`/`Infinity`              | `TEXT`                         |
 
 The full table with edge cases lives in [`doc/type-mapping.md`](./doc/type-mapping.md).
 

@@ -5,14 +5,14 @@
 
 ## What was intentionally broken (breaking changes)
 
-| What                | Before                                       | After                                                   |
-| ------------------- | -------------------------------------------- | ------------------------------------------------------- |
-| `setup()`           | `{ users: [rows] }`                          | `{ users: [rows] }` or `{ users: { schema?, rows? } }`  |
-| `query()` params    | positional `?` + array                       | named-only via `{ params: { $name: ... } }`             |
-| `getSchema()`       | `{ type, nullable, converter }` (internal)   | `{ type, nullable }`, object is frozen                  |
-| Repeated `setup()`  | failed on `CREATE TABLE`                     | works, drops the old tables                             |
-| `Uint8Array`        | serialized via JSON                          | written as BLOB                                         |
-| Version             | `1.0.0`                                      | `2.0.0`                                                 |
+| What               | Before                                     | After                                                  |
+| ------------------ | ------------------------------------------ | ------------------------------------------------------ |
+| `setup()`          | `{ users: [rows] }`                        | `{ users: [rows] }` or `{ users: { schema?, rows? } }` |
+| `query()` params   | positional `?` + array                     | named-only via `{ params: { $name: ... } }`            |
+| `getSchema()`      | `{ type, nullable, converter }` (internal) | `{ type, nullable }`, object is frozen                 |
+| Repeated `setup()` | failed on `CREATE TABLE`                   | works, drops the old tables                            |
+| `Uint8Array`       | serialized via JSON                        | written as BLOB                                        |
+| Version            | `1.0.0`                                    | `2.0.0`                                                |
 
 ## What was **not** done (deferred)
 
