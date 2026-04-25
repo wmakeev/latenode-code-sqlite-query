@@ -1,7 +1,7 @@
 // @ts-check
 import { expect, test, describe, beforeEach, afterEach } from 'bun:test'
 import { SqliteTool } from '../src/SqliteTool.js'
-import assert from 'node:assert'
+import assert from 'node:assert/strict'
 
 /** @type { SqliteTool } */
 let sqliteTool
@@ -125,12 +125,10 @@ describe('SqliteTool', () => {
 
       LEFT JOIN dict AS d ON it.id = d.id
 
-      WHERE it.id = ?
+      WHERE it.id = $id
     `
 
-    const queryParams = [2]
-
-    const result = sqliteTool.query(userQuery, queryParams)
+    const result = sqliteTool.query(userQuery, { params: { $id: 2 } })
 
     expect(result).toBeArray()
 

@@ -10,6 +10,11 @@ npm-debug.log*
 # npm
 node_modules
 
+# Lock-файлы других менеджеров — проект использует только bun.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
 # env
 .env*
 !.env.example
@@ -24,4 +29,5 @@ node_modules
 /build
 /dist
 
-
+# project
+.refactoring

@@ -1,0 +1,5 @@
+{
+  "//": "Скопируйте этот файл в .vscode/settings.json и при необходимости",
+  "//bun.runtime": "Если расширение Bun for VS Code не находит bun автоматически — раскомментируйте.",
+  "//bun.runtime.value": "/home/USER/.bun/bin/bun"
+}

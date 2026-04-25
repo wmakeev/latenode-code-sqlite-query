@@ -1,13 +1,14 @@
 {
-	"extends": [
-		"@tsconfig/bun/tsconfig.json",
-		"@tsconfig/strictest/tsconfig.json"
-	],
-	"compilerOptions": {
+  "extends": [
+    "@tsconfig/bun/tsconfig.json",
+    "@tsconfig/strictest/tsconfig.json"
+  ],
+  "compilerOptions": {
     "types": ["bun"],
-		"noEmit": true,
-		"exactOptionalPropertyTypes": false,
-		"allowJs": true
-	},
-	"include": ["src/**/*", "test/**/*", "resources/_sample.js"]
+    "noEmit": true,
+    "allowJs": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true
+  },
+  "include": ["src/**/*", "test/**/*"]
 }
