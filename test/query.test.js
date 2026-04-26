@@ -1,5 +1,6 @@
 // @ts-check
 import { expect, test, describe, beforeEach, afterEach } from 'bun:test'
+import { Buffer } from 'node:buffer'
 import { SqliteTool } from '../src/SqliteTool.js'
 
 /** @type { SqliteTool } */
@@ -156,5 +157,204 @@ describe('query()', () => {
     })
     const arr = Array.from(iter)
     expect(arr).toEqual([{ data: { a: 1 } }, { data: { b: 2 } }])
+  })
+})
+
+/**
+ * Parameter values are bound directly via `bun:sqlite` without any
+ * auto-conversion (unlike `setup()`). bun:sqlite accepts only:
+ *   string | number | boolean | bigint | null | TypedArray
+ * Anything else throws a TypeError at bind time. These tests pin that
+ * contract so future bun upgrades or accidental converter-on-params changes
+ * are caught.
+ */
+describe('query() parameter binding — accepted types', () => {
+  beforeEach(() => {
+    tool = new SqliteTool(':memory:', SILENT)
+    tool.setup({ t: [{ id: 1 }] })
+  })
+
+  afterEach(() => {
+    tool.close()
+  })
+
+  test('string', () => {
+    const [row] = tool.query('SELECT $v AS v', { params: { $v: 'hello' } })
+    expect(row).toEqual({ v: 'hello' })
+  })
+
+  test('empty string', () => {
+    const [row] = tool.query('SELECT $v AS v', { params: { $v: '' } })
+    expect(row).toEqual({ v: '' })
+  })
+
+  test('integer number', () => {
+    const [row] = tool.query('SELECT $v AS v', { params: { $v: 42 } })
+    expect(row).toEqual({ v: 42 })
+  })
+
+  test('floating-point number', () => {
+    const [row] = tool.query('SELECT $v AS v', { params: { $v: 3.14 } })
+    expect(row).toEqual({ v: 3.14 })
+  })
+
+  test('Infinity is preserved as REAL', () => {
+    const [row] = tool.query('SELECT $v AS v', { params: { $v: Infinity } })
+    expect(row).toEqual({ v: Infinity })
+  })
+
+  test('-Infinity is preserved as REAL', () => {
+    const [row] = tool.query('SELECT $v AS v', { params: { $v: -Infinity } })
+    expect(row).toEqual({ v: -Infinity })
+  })
+
+  test('NaN is silently bound as NULL (footgun — documented)', () => {
+    // bun:sqlite does NOT throw on NaN, it binds NULL. This is asymmetric
+    // with setup(), where NaN is stored as the string 'NaN'. Caller code
+    // must filter NaN before passing it as a parameter.
+    const [row] = tool.query('SELECT $v AS v', { params: { $v: NaN } })
+    expect(row).toEqual({ v: null })
+  })
+
+  test('boolean true → 1', () => {
+    const [row] = tool.query('SELECT $v AS v', { params: { $v: true } })
+    expect(row).toEqual({ v: 1 })
+  })
+
+  test('boolean false → 0', () => {
+    const [row] = tool.query('SELECT $v AS v', { params: { $v: false } })
+    expect(row).toEqual({ v: 0 })
+  })
+
+  test('bigint (no safeIntegers needed for binding)', () => {
+    // Without safeIntegers reading converts to number — precision is lost on
+    // read, but the bind itself succeeded. We only assert the bind path here.
+    const rows = /** @type { any[] } */ (
+      tool.query('SELECT $v AS v', { params: { $v: 9007199254740993n } })
+    )
+    expect(typeof rows[0].v).toBe('number')
+  })
+
+  test('null → NULL', () => {
+    const [row] = tool.query('SELECT $v AS v', { params: { $v: null } })
+    expect(row).toEqual({ v: null })
+  })
+
+  test('undefined → NULL', () => {
+    const [row] = tool.query('SELECT $v AS v', { params: { $v: undefined } })
+    expect(row).toEqual({ v: null })
+  })
+
+  test('Uint8Array → BLOB', () => {
+    const buf = new Uint8Array([1, 2, 3])
+    const rows = /** @type { any[] } */ (
+      tool.query('SELECT $v AS v', { params: { $v: buf } })
+    )
+    expect(rows[0].v).toEqual(buf)
+  })
+
+  test('Buffer (Node-style) → BLOB', () => {
+    const rows = /** @type { any[] } */ (
+      tool.query('SELECT $v AS v', { params: { $v: Buffer.from('abc') } })
+    )
+    expect(rows[0].v).toEqual(new Uint8Array([97, 98, 99]))
+  })
+
+  test('Int16Array (other TypedArray) → BLOB', () => {
+    const rows = /** @type { any[] } */ (
+      tool.query('SELECT $v AS v', { params: { $v: new Int16Array([1, 2]) } })
+    )
+    expect(rows[0].v).toBeInstanceOf(Uint8Array)
+  })
+})
+
+describe('query() parameter binding — rejected types throw TypeError', () => {
+  beforeEach(() => {
+    tool = new SqliteTool(':memory:', SILENT)
+    tool.setup({ t: [{ id: 1 }] })
+  })
+
+  afterEach(() => {
+    tool.close()
+  })
+
+  const BIND_ERR = /Binding expected/
+
+  test('plain object throws — pre-serialise via JSON.stringify', () => {
+    expect(() =>
+      tool.query('SELECT $v AS v', { params: { $v: { a: 1 } } })
+    ).toThrow(BIND_ERR)
+  })
+
+  test('plain array throws', () => {
+    expect(() =>
+      tool.query('SELECT $v AS v', { params: { $v: [1, 2] } })
+    ).toThrow(BIND_ERR)
+  })
+
+  test('Date throws — pre-format via toISOString()', () => {
+    expect(() =>
+      tool.query('SELECT $v AS v', { params: { $v: new Date() } })
+    ).toThrow(BIND_ERR)
+  })
+
+  test('Map throws', () => {
+    expect(() =>
+      tool.query('SELECT $v AS v', { params: { $v: new Map([['a', 1]]) } })
+    ).toThrow(BIND_ERR)
+  })
+
+  test('Set throws', () => {
+    expect(() =>
+      tool.query('SELECT $v AS v', { params: { $v: new Set([1, 2]) } })
+    ).toThrow(BIND_ERR)
+  })
+
+  test('RegExp throws', () => {
+    expect(() =>
+      tool.query('SELECT $v AS v', { params: { $v: /abc/ } })
+    ).toThrow(BIND_ERR)
+  })
+
+  test('function throws', () => {
+    expect(() =>
+      tool.query('SELECT $v AS v', { params: { $v: () => 1 } })
+    ).toThrow(BIND_ERR)
+  })
+
+  test('Symbol throws', () => {
+    expect(() =>
+      tool.query('SELECT $v AS v', {
+        params: /** @type { any } */ ({ $v: Symbol('s') })
+      })
+    ).toThrow(BIND_ERR)
+  })
+
+  test('ArrayBuffer (without TypedArray view) throws', () => {
+    expect(() =>
+      tool.query('SELECT $v AS v', { params: { $v: new ArrayBuffer(8) } })
+    ).toThrow(BIND_ERR)
+  })
+
+  test('class instance throws', () => {
+    class Foo {
+      constructor() {
+        this.x = 1
+      }
+    }
+    expect(() =>
+      tool.query('SELECT $v AS v', { params: { $v: new Foo() } })
+    ).toThrow(BIND_ERR)
+  })
+
+  test('recommended workaround for objects: JSON.stringify', () => {
+    // Documents the canonical fix for the rejected-types case above.
+    tool.close()
+    tool = new SqliteTool(':memory:', SILENT)
+    tool.setup({ t: [{ id: 1, data: { a: 1 } }] })
+    const rows = tool.query('SELECT id FROM t WHERE data = $d', {
+      params: { $d: JSON.stringify({ a: 1 }) }
+    })
+    expect(rows).toEqual([{ id: 1 }])
   })
 })

@@ -46,19 +46,19 @@ console.log(tool.getSchema())
 
 ## JS → SQLite type mapping (short)
 
-| JS                            | SQLite                         |
+| JS | SQLite |
 | ----------------------------- | ------------------------------ |
-| `string`                      | `TEXT`                         |
-| `boolean`                     | `INTEGER` (0/1)                |
-| `Uint8Array`                  | `BLOB`                         |
-| `number` (integer, finite)    | `INTEGER`                      |
-| `number` (fractional, finite) | `REAL`                         |
-| `bigint`                      | `INTEGER` (see `safeIntegers`) |
-| `Date`                        | `TEXT` (ISO 8601)              |
-| plain `{}`/`[]`               | `TEXT` (JSON)                  |
-| `Map`/`Set`/`RegExp`/class    | `TEXT NULL` (stored as `null`) |
-| `null`/`undefined`            | column → nullable              |
-| `NaN`/`Infinity`              | `TEXT`                         |
+| `string` | `TEXT` |
+| `boolean` | `INTEGER` (0/1) |
+| `Uint8Array` | `BLOB` |
+| `number` (integer, finite) | `INTEGER` |
+| `number` (fractional, finite) | `REAL` |
+| `bigint` | `INTEGER` (see `safeIntegers`) |
+| `Date` | `TEXT` (ISO 8601) |
+| plain `{}`/`[]` | `TEXT` (JSON) |
+| `Map`/`Set`/`RegExp`/class | `TEXT NULL` (stored as `null`) |
+| `null`/`undefined` | column → nullable |
+| `NaN`/`Infinity` | `TEXT` |
 
 The full table with edge cases lives in [`doc/type-mapping.md`](./doc/type-mapping.md).
 
@@ -130,6 +130,43 @@ tool.query('SELECT * FROM users WHERE id = $id', {
 Parameters are **named only** (`$name`, `:name`, `@name`). The key in
 `params` must include the same prefix that is used in the SQL (`$id` ↔ `$id`,
 `:name` ↔ `:name`).
+
+#### Allowed parameter value types
+
+`opts.params` values are bound directly by `bun:sqlite` — there is **no
+auto-conversion** (this is asymmetric with `setup()`, which serializes POJOs
+into SQLite types via converters).
+
+| JS value | Result |
+| --------------------------------------------- | -------------------------------------- |
+| `string` | `TEXT` |
+| `number` (finite or `±Infinity`) | `INTEGER` / `REAL` |
+| `boolean` | `INTEGER` (`true → 1`, `false → 0`) |
+| `bigint` | `INTEGER` |
+| `null` / `undefined` | `NULL` |
+| `Uint8Array`, `Buffer`, any `TypedArray` | `BLOB` |
+| `NaN` | **silently bound as `NULL`** |
+| plain `{}` / `[]` | **`TypeError` thrown** by `bun:sqlite` |
+| `Date` (valid or invalid) | **`TypeError` thrown** |
+| `Map`, `Set`, `RegExp`, class instances | **`TypeError` thrown** |
+| `ArrayBuffer` (no view), `function`, `Symbol` | **`TypeError` thrown** |
+
+The `TypeError` reads `Binding expected string, TypedArray, boolean, number, bigint or null`.
+
+For unsupported types pre-serialize on the call site:
+
+```js
+tool.query('SELECT * FROM t WHERE data = $d', {
+  params: { $d: JSON.stringify({ a: 1 }) }
+})
+tool.query('SELECT * FROM t WHERE created_at >= $t', {
+  params: { $t: new Date().toISOString() }
+})
+```
+
+Note the `NaN` corner: `setup()` stores `NaN` as the string `'NaN'`, but a
+`NaN` parameter binds as `NULL` without any error. Filter `Number.isNaN`
+before calling `query()` if that distinction matters.
 
 ### `queryIterator(sql, opts?)`
 
