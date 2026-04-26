@@ -119,6 +119,7 @@ Documented limitations:
 forwarded straight into `Statement.all()` / `Statement.iterate()`. The
 accepted set is whatever `bun:sqlite` accepts at bind time:
 
+<!-- prettier-ignore -->
 | JS value | Bound as |
 | - | - |
 | `string` | `TEXT` |
@@ -137,13 +138,13 @@ typed view, `Symbol`, and functions.
 
 ### Asymmetry with `setup()`
 
-| Value | `setup()` (POJO data) | `query()` parameter |
-| - | - | - |
-| plain `{}`/`[]` | `TEXT` (`JSON.stringify`) | **TypeError** |
-| `Date` (valid) | `TEXT` (`val.toJSON()`) | **TypeError** |
-| `Date` (invalid) | `NULL` | **TypeError** |
-| `Map` / `Set` | `NULL` | **TypeError** |
-| `NaN` | `'NaN'` (TEXT via `String()`) | `NULL` (silent) |
+| Value            | `setup()` (POJO data)         | `query()` parameter |
+| ---------------- | ----------------------------- | ------------------- |
+| plain `{}`/`[]`  | `TEXT` (`JSON.stringify`)     | **TypeError**       |
+| `Date` (valid)   | `TEXT` (`val.toJSON()`)       | **TypeError**       |
+| `Date` (invalid) | `NULL`                        | **TypeError**       |
+| `Map` / `Set`    | `NULL`                        | **TypeError**       |
+| `NaN`            | `'NaN'` (TEXT via `String()`) | `NULL` (silent)     |
 
 Pre-serialize on the caller side before binding:
 

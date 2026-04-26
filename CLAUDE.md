@@ -70,7 +70,7 @@ The `toJs` field on every converter is **defined but not currently invoked** whe
 
 - **All project files MUST be written in English.** This includes source code (comments, JSDoc, log messages, identifiers, error messages), tests (descriptions, comments), and documentation (README, CHANGELOG, doc/). Do not write Russian (or any other non-English) text in committed files.
 - Prettier config is inline in `package.json`: no semicolons, single quotes, no trailing commas, `arrowParens: avoid`. Before committing run `bun run format:fix` (or at minimum `bun run format`) — CI runs `prettier --check` and will fail on unformatted files.
-- Markdown tables: write them in the **compact** form (`| col | val |`), do **not** pad columns to align them. Caveat — prettier 3.x **does** auto-align tables in MD files, and `bun run format:fix` will re-pad any compact tables. After running `format:fix`, re-compact MD tables manually (or skip `format:fix` when only docs changed). Markdownlint rule `MD060` flags the padded form, which matches the project's compact-table preference.
+- Markdown tables: prettier auto-aligns columns by default. Use that **only** for tables whose aligned width stays under ~100 characters. For wider tables (where alignment produces long, hard-to-edit rows), keep the compact `| col | val |` form and prefix the table with `<!-- prettier-ignore -->` so `format:fix` does not re-pad them. When in doubt, run `bun run format:fix` and check the resulting line widths.
 - ESLint flat config in `eslint.config.js` — `@eslint/js` recommended + `eslint-plugin-jsdoc`.
 - Logs go through `this._logger` with `[SQL]` / `[INFO]` / `[ERROR]` prefixes. Never call `console.*` directly inside `SqliteTool.js`. Tests use `verbose: 'silent'`.
 

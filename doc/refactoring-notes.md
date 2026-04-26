@@ -5,6 +5,7 @@
 
 ## What was intentionally broken (breaking changes)
 
+<!-- prettier-ignore -->
 | What | Before | After |
 | - | - | - |
 | `setup()` | `{ users: [rows] }` | `{ users: [rows] }` or `{ users: { schema?, rows? } }` |
@@ -16,7 +17,7 @@
 
 ## What was **not** done (deferred)
 
-- **Auto PRIMARY KEY** for `id` columns. Too much implicit behaviour.
+- **Auto PRIMARY KEY** for `id` columns. Too much implicit behavior.
   The user can always supply it via `{ schema: { id: 'INTEGER PRIMARY KEY' } }`.
 - **Sanitizing SQL reserved words** in column/table names.
   Not needed: everything is quoted via `quoteIdent` — `select`, `from`, `__proto__`

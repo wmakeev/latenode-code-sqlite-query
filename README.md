@@ -137,19 +137,19 @@ Parameters are **named only** (`$name`, `:name`, `@name`). The key in
 auto-conversion** (this is asymmetric with `setup()`, which serializes POJOs
 into SQLite types via converters).
 
-| JS value | Result |
-| - | - |
-| `string` | `TEXT` |
-| `number` (finite or `±Infinity`) | `INTEGER` / `REAL` |
-| `boolean` | `INTEGER` (`true → 1`, `false → 0`) |
-| `bigint` | `INTEGER` |
-| `null` / `undefined` | `NULL` |
-| `Uint8Array`, `Buffer`, any `TypedArray` | `BLOB` |
-| `NaN` | **silently bound as `NULL`** |
-| plain `{}` / `[]` | **`TypeError` thrown** by `bun:sqlite` |
-| `Date` (valid or invalid) | **`TypeError` thrown** |
-| `Map`, `Set`, `RegExp`, class instances | **`TypeError` thrown** |
-| `ArrayBuffer` (no view), `function`, `Symbol` | **`TypeError` thrown** |
+| JS value                                      | Result                                 |
+| --------------------------------------------- | -------------------------------------- |
+| `string`                                      | `TEXT`                                 |
+| `number` (finite or `±Infinity`)              | `INTEGER` / `REAL`                     |
+| `boolean`                                     | `INTEGER` (`true → 1`, `false → 0`)    |
+| `bigint`                                      | `INTEGER`                              |
+| `null` / `undefined`                          | `NULL`                                 |
+| `Uint8Array`, `Buffer`, any `TypedArray`      | `BLOB`                                 |
+| `NaN`                                         | **silently bound as `NULL`**           |
+| plain `{}` / `[]`                             | **`TypeError` thrown** by `bun:sqlite` |
+| `Date` (valid or invalid)                     | **`TypeError` thrown**                 |
+| `Map`, `Set`, `RegExp`, class instances       | **`TypeError` thrown**                 |
+| `ArrayBuffer` (no view), `function`, `Symbol` | **`TypeError` thrown**                 |
 
 The `TypeError` reads `Binding expected string, TypedArray, boolean, number, bigint or null`.
 
