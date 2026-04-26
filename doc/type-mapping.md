@@ -4,21 +4,21 @@
 
 ## Inference (schema is derived from rows)
 
-| JS value | SQLite | Nullable | Write | Read |
-| - | - | - | - | - |
-| `string` | `TEXT` | per rules | `String(val)` | `string` |
-| `true` / `false` | `INTEGER` | per rules | `1` / `0` | `1` / `0` (bun returns a number; for bool compare against `1`) |
-| `Uint8Array` | `BLOB` | per rules | `val` | `Uint8Array` |
-| `42` (finite integer) | `INTEGER` | per rules | `val` | `number` or `bigint` (see `safeIntegers`) |
-| `1.5` (finite) | `REAL` | per rules | `val` | `number` |
-| `1n` (`bigint`) | `INTEGER` | per rules | `val` | `bigint` (when `safeIntegers` is active) |
-| valid `Date` | `TEXT` | per rules | `val.toJSON()` (ISO 8601) | `string` |
-| invalid `Date` | `TEXT` | **NULL** | `null` | `null` |
-| `{}`, `[...]` (plain) | `TEXT` | per rules | `JSON.stringify(val)` | `string` (see `restoreTypes`) |
-| `Map`, `Set`, `RegExp`, `Promise`, classes | `TEXT` | **NULL** | `null` | `null` |
-| `NaN`, `Infinity`, `-Infinity` | `TEXT` | per rules | `'NaN'` / `'Infinity'` (via the default converter) | `string` |
-| `null`, `undefined` | — (does not change the type, makes the column nullable) | yes | `null` | `null` |
-| key absent in the row | — (makes the column nullable) | yes | `null` | `null` |
+| JS value                                   | SQLite                                                  | Nullable  | Write                                              | Read                                                           |
+| ------------------------------------------ | ------------------------------------------------------- | --------- | -------------------------------------------------- | -------------------------------------------------------------- |
+| `string`                                   | `TEXT`                                                  | per rules | `String(val)`                                      | `string`                                                       |
+| `true` / `false`                           | `INTEGER`                                               | per rules | `1` / `0`                                          | `1` / `0` (bun returns a number; for bool compare against `1`) |
+| `Uint8Array`                               | `BLOB`                                                  | per rules | `val`                                              | `Uint8Array`                                                   |
+| `42` (finite integer)                      | `INTEGER`                                               | per rules | `val`                                              | `number` or `bigint` (see `safeIntegers`)                      |
+| `1.5` (finite)                             | `REAL`                                                  | per rules | `val`                                              | `number`                                                       |
+| `1n` (`bigint`)                            | `INTEGER`                                               | per rules | `val`                                              | `bigint` (when `safeIntegers` is active)                       |
+| valid `Date`                               | `TEXT`                                                  | per rules | `val.toJSON()` (ISO 8601)                          | `string`                                                       |
+| invalid `Date`                             | `TEXT`                                                  | **NULL**  | `null`                                             | `null`                                                         |
+| `{}`, `[...]` (plain)                      | `TEXT`                                                  | per rules | `JSON.stringify(val)`                              | `string` (see `restoreTypes`)                                  |
+| `Map`, `Set`, `RegExp`, `Promise`, classes | `TEXT`                                                  | **NULL**  | `null`                                             | `null`                                                         |
+| `NaN`, `Infinity`, `-Infinity`             | `TEXT`                                                  | per rules | `'NaN'` / `'Infinity'` (via the default converter) | `string`                                                       |
+| `null`, `undefined`                        | — (does not change the type, makes the column nullable) | yes       | `null`                                             | `null`                                                         |
+| key absent in the row                      | — (makes the column nullable)                           | yes       | `null`                                             | `null`                                                         |
 
 ### Nullable rules
 
@@ -49,13 +49,13 @@ Stable, in order of first appearance:
 
 Here the converters are generic (see `sqliteExplicitConverters`):
 
-| Declared type | Accepts | Write |
-| - | - | - |
-| `'INTEGER'` | `number`, `bigint`, `boolean` | `boolean → 0/1`, otherwise `val` |
-| `'REAL'` | `number`, `bigint` | `bigint → Number(val)`, otherwise `val` |
-| `'TEXT'` | any | `string → val`, `Date → val.toJSON()` (or `null` for invalid), `plain object → JSON.stringify`, otherwise `String(val)` |
-| `'BLOB'` | `Uint8Array` | `val` |
-| `'NULL'` | `null` / `undefined` | `null` |
+| Declared type | Accepts                       | Write                                                                                                                   |
+| ------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `'INTEGER'`   | `number`, `bigint`, `boolean` | `boolean → 0/1`, otherwise `val`                                                                                        |
+| `'REAL'`      | `number`, `bigint`            | `bigint → Number(val)`, otherwise `val`                                                                                 |
+| `'TEXT'`      | any                           | `string → val`, `Date → val.toJSON()` (or `null` for invalid), `plain object → JSON.stringify`, otherwise `String(val)` |
+| `'BLOB'`      | `Uint8Array`                  | `val`                                                                                                                   |
+| `'NULL'`      | `null` / `undefined`          | `null`                                                                                                                  |
 
 ### Composite declarations
 
@@ -120,7 +120,7 @@ forwarded straight into `Statement.all()` / `Statement.iterate()`. The
 accepted set is whatever `bun:sqlite` accepts at bind time:
 
 | JS value | Bound as |
-| ---------------------------------------- | --------------------------------------------------------------------------------- |
+| - | - |
 | `string` | `TEXT` |
 | `number` (finite) | `INTEGER` (no fraction) / `REAL` |
 | `Infinity`, `-Infinity` | `REAL` (preserved on read) |
@@ -138,7 +138,7 @@ typed view, `Symbol`, and functions.
 ### Asymmetry with `setup()`
 
 | Value | `setup()` (POJO data) | `query()` parameter |
-| ---------------- | ----------------------------- | ------------------- |
+| - | - | - |
 | plain `{}`/`[]` | `TEXT` (`JSON.stringify`) | **TypeError** |
 | `Date` (valid) | `TEXT` (`val.toJSON()`) | **TypeError** |
 | `Date` (invalid) | `NULL` | **TypeError** |
@@ -173,10 +173,10 @@ deliberately not done:
 
 ## `safeIntegers`
 
-| Mode | Behavior |
-| - | - |
-| `false` | INTEGER is always returned as `number`. Large values (`> 2^53 − 1`) lose precision. |
-| `true` | INTEGER is always returned as `bigint`. ALL INTEGER values, including booleans (1n/0n) and auto-increment. |
+| Mode               | Behavior                                                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `false`            | INTEGER is always returned as `number`. Large values (`> 2^53 − 1`) lose precision.                                             |
+| `true`             | INTEGER is always returned as `bigint`. ALL INTEGER values, including booleans (1n/0n) and auto-increment.                      |
 | `'auto'` (default) | If at least one `bigint` is seen in `setup()`/`addTable()`, the DB is reopened with `safeIntegers: true` and the mode is fixed. |
 
 In bun 1.3.x `safeIntegers` is a constructor option of `Database`, no runtime toggle exists.
