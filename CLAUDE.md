@@ -70,6 +70,7 @@ The `toJs` field on every converter is **defined but not currently invoked** whe
 
 - **All project files MUST be written in English.** This includes source code (comments, JSDoc, log messages, identifiers, error messages), tests (descriptions, comments), and documentation (README, CHANGELOG, doc/). Do not write Russian (or any other non-English) text in committed files.
 - Prettier config is inline in `package.json`: no semicolons, single quotes, no trailing commas, `arrowParens: avoid`. Before committing run `bun run format:fix` (or at minimum `bun run format`) — CI runs `prettier --check` and will fail on unformatted files.
+- Markdown tables: use the **compact** form (`| col | val |`), do **not** pad columns to align them. Aligned tables are a maintenance burden when columns change and prettier does not enforce alignment either way.
 - ESLint flat config in `eslint.config.js` — `@eslint/js` recommended + `eslint-plugin-jsdoc`.
 - Logs go through `this._logger` with `[SQL]` / `[INFO]` / `[ERROR]` prefixes. Never call `console.*` directly inside `SqliteTool.js`. Tests use `verbose: 'silent'`.
 

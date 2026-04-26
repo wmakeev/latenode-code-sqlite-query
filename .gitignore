@@ -30,4 +30,5 @@ pnpm-lock.yaml
 /dist
 
 # project
+.claude/scheduled_tasks.lock
 .refactoring

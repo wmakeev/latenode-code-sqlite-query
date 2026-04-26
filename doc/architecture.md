@@ -4,7 +4,7 @@
 
 ## Modules
 
-```
+```txt
 src/
   index.js                  — public re-export (only SqliteTool)
   SqliteTool.js             — facade: lifecycle, transactions, query/queryIterator/queryWithMeta, statement cache
@@ -21,7 +21,7 @@ src/
 
 ## Execution flow of `setup(tables)`
 
-```
+```txt
 tables (user input)
   → normalizeTablesInput()           — Record<string, NormalizedTableInput>
                                        (the short [rows] and the long {schema, rows} forms are unified)
@@ -32,7 +32,7 @@ tables (user input)
          DROP TABLE IF EXISTS
          CREATE TABLE
          INSERT (via prepared statement, finalize in finally)
-     })()
+    })()
   → if the transaction throws — _tables is rolled back to prevTables
 ```
 
